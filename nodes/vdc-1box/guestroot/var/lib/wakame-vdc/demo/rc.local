@@ -1,0 +1,123 @@
+#!/bin/bash
+#
+# requires:
+#  bash
+#
+set -e
+set -x
+
+exec > >(tee /var/log/vdc-firstboot.log) 2>&1
+
+function show_timestamp() {
+  local message=${1:-'>>>'}
+  echo "#[timestamp](${message})" $(date +%FT%X.%N)
+}
+
+## Wakame-VDC
+
+show_timestamp begin
+
+### stop services
+
+initctl stop vdc-hva       || :
+initctl stop vdc-collector || :
+
+/etc/init.d/zabbix-server stop || :
+/etc/init.d/zabbix-agent  stop || :
+/etc/init.d/httpd         stop || :
+
+sleep 10
+show_timestamp
+
+### replace hva node-id with 1boxXX
+
+case "$(arch)" in
+  i686) sed -i -e "s,^#NODE_ID=.*,NODE_ID=1box32," /etc/default/vdc-hva ;;
+x86_64) sed -i -e "s,^#NODE_ID=.*,NODE_ID=1box64," /etc/default/vdc-hva ;;
+esac
+
+### initialize database
+
+for dbname in wakame_dcmgr wakame_dcmgr_gui zabbix dolphin; do
+  yes | mysqladmin -uroot drop ${dbname} || :
+  mysqladmin -uroot create ${dbname} --default-character-set=utf8
+done
+show_timestamp
+
+#### wakame-vdc
+
+for dirpath in /opt/axsh/wakame-vdc/dcmgr /opt/axsh/wakame-vdc/frontend/dcmgr_gui; do
+  cd ${dirpath}
+  /opt/axsh/wakame-vdc/ruby/bin/bundle exec rake db:init --trace
+  show_timestamp
+done
+
+##### dolphin
+
+# mysql -uroot dolphin < /var/lib/wakame-vdc/demo/dolphin.sql
+### [2014/08/07] disable cassandra installation
+### cassandra-cli -h 127.0.0.1 < /var/lib/wakame-vdc/demo/cassandra_schema.txt
+show_timestamp
+
+#### zabbix
+
+mysql -uroot <<'EOS'
+  grant all privileges on zabbix.* to zabbix@localhost identified by 'zabbix';
+  flush privileges;
+EOS
+show_timestamp
+
+##### zabbix-server 1.8
+
+while read line; do
+  # [2014/08/21] disable zabbix db import
+  echo "mysql -uroot zabbix < ${line}"
+done < <(
+  rpm -ql zabbix-server-mysql | grep schema/mysql.sql
+  rpm -ql zabbix-server-mysql | egrep '/data/.*\.sql$'
+)
+show_timestamp
+
+### add core data
+
+export HOME=/root
+
+find /var/lib/wakame-vdc/demo/vdc-manage.d/ -type f | sort | xargs cat | egrep -v '^#|^$' | /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage
+find /var/lib/wakame-vdc/demo/gui-manage.d/ -type f | sort | xargs cat | egrep -v '^#|^$' | /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage
+show_timestamp
+
+### prepare to start vdc-*
+
+sed -i "s,^#RUN=.*,RUN=yes," /etc/default/vdc-*
+
+### change parameter to run lb instance
+
+sed -i -e "s,example.com,10.1.0.1," /etc/wakame-vdc/dcmgr.conf
+case "$(arch)" in
+  i686) sed -i -e "s,wmi-demolb,wmi-haproxy1d32," /etc/wakame-vdc/dcmgr.conf ;;
+x86_64) sed -i -e "s,wmi-demolb,wmi-haproxy1d64," /etc/wakame-vdc/dcmgr.conf ;;
+esac
+
+### bkst-local(config file default) -> bkst-demo3(apache)
+
+sed -i -e "s,bkst-local,bkst-demo3," /etc/wakame-vdc/dcmgr.conf
+
+### start services
+
+initctl start vdc-collector
+
+/etc/init.d/zabbix-server start
+/etc/init.d/zabbix-agent  start
+/etc/init.d/httpd         start
+show_timestamp
+
+### sub rc.locla scripts
+
+if [[ -d /var/lib/wakame-vdc/demo/rc.local.d ]]; then
+  find /var/lib/wakame-vdc/demo/rc.local.d ! -type d | sort | while read subscript; do
+    [[ -x "${subscript}" ]] || continue
+    ${subscript}
+  done
+fi
+
+show_timestamp end
