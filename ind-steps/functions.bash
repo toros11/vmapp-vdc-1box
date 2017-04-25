@@ -96,3 +96,41 @@ shutdown ()
     # should call some kill function
     return 0
 }
+
+#
+# environment functions
+#
+
+vm_run_cmd ()
+{
+    return 0
+}
+install_package ()
+{
+    local package="${1}"
+    (
+        $starting_step "Install ${package}"
+        vm_run_cmd "rpm -qi ${package}"
+        $skip_step_if_already_done ; set -ex
+        [[ -n "${PKG_SRC}" ]] && package="${PKG_SRC}"
+        vm_run_cmd "yum install -y ${package}"
+    ) ; prev_cmd_failed
+}
+
+chkconfig_service ()
+{
+    local service="${1}"
+    local mode="${2}"
+    (
+        $starting_step "Set ${service} runtime to ${mode}"
+        false
+        $skip_step_if_already_done ; set -ex
+        vm_run_cmd $(cat <<EOF
+"chkconfig --list ${service}"
+"chkconfig ${service} ${mode}"
+"chkconfig --list ${service}"
+EOF
+            )
+    ) ; prev_cmd_failed
+
+}
