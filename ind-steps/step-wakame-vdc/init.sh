@@ -6,7 +6,7 @@
   # > Error: Cannot retrieve metalink for repository: epel. Please verify its path and try again
   #
 
-  # make into step
+  # may not be needed anymore
 vm_run_cmd "sed -i \
    -e 's,^#baseurl,baseurl,' \
    -e 's,^mirrorlist=,#mirrorlist=,' \
@@ -18,9 +18,5 @@ vm_run_cmd "yum clean metadata --disablerepo=* --enablerepo=wakame-vdc-rhel6 --e
 vm_run_cmd "yum update  -y     --disablerepo=* --enablerepo=wakame-vdc-rhel6 --enablerepo=wakame-3rd-rhel6"
 
 
-# make into step
-
 # wakame-vdc-ruby depends on libyaml.
-# TODO: handle arch type.
-
-vm_run_cmd "yum install -y http://vault.centos.org/6.6/os/x86_64/Packages/libyaml-0.1.3-1.4.el6.x86_64.rpm"
+PKG_URL="http://vault.centos.org/6.6/os/x86_64/Packages/libyaml-0.1.3-1.4.el6.x86_64.rpm" install_package "libyaml"

@@ -120,17 +120,23 @@ install_package ()
 chkconfig_service ()
 {
     local service="${1}"
-    local mode="${2}"
+    local status="${2}"
     (
-        $starting_step "Set ${service} runtime to ${mode}"
+        $starting_step "Set ${service} runtime to ${status}"
         false
         $skip_step_if_already_done ; set -ex
         vm_run_cmd $(cat <<EOF
 "chkconfig --list ${service}"
-"chkconfig ${service} ${mode}"
+"chkconfig ${service} ${status}"
 "chkconfig --list ${service}"
 EOF
             )
     ) ; prev_cmd_failed
 
+}
+
+initctl_service ()
+{
+    local service="${1}"
+    local cmd="${2}"
 }

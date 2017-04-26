@@ -1,0 +1,43 @@
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/functions.bash: line 121: unexpected EOF while looking for matching `"'
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/functions.bash: line 132: syntax error: unexpected end of file
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 44: syntax error near unexpected token `('
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 44: `vdc_package=('
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 46: dcmgr: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 47: example-1box-dcmgr: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 48: sta: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 49: example-1box-sta: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 50: bksta: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 51: natbox: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 52: dolphin: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 53: nwmongw: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 54: webui: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 55: example-1box-webui: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 56: admin: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 57: example-1box-admin: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 58: syntax error near unexpected token `)'
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/datadir.conf: line 58: `)'
+
+=======> building node:
+
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-wakame-vdc/init.sh: line 14: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-wakame-vdc/init.sh: line 17: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-wakame-vdc/init.sh: line 18: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-wakame-vdc/init.sh: line 26: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-zabbix/init.sh: line 3: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-fluentd/install.sh: line 2: install_package: command not found
+*** : 1.1-Setup load balancer (not done)
+*** : 1.2-Setup hypervisor:  (not done)
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/build.sh: line 41: vm_run_cmd: command not found
+*** : 1.3-Install vdc-package wakame-vdc-td-agent-addon-wakame-vdc*-vmapp-config (not done)
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-wakame-vdc/preconfigure.sh: line 9: chkconfig_service: command not found
+*** : 1.4-Setup edge networking (not done)
+error reading information on service httpd: No such file or directory
+/home/tobias/work/1box/vmapp-vdc-1box/nodes/vdc-1box/build.sh: line 32: vm_run_cmd: command not found
+*** : 1.5-Set ownership of wakames image storage to apache (not done)
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-zabbix/preconfigure.sh: line 2: chkconfig_service: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-zabbix/preconfigure.sh: line 12: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-zabbix/preconfigure.sh: line 19: vm_run_cmd: command not found
+/home/tobias/work/1box/vmapp-vdc-1box/ind-steps/step-fluentd/preconfigure.sh: line 3: chkconfig_service: command not found
+
+<======= finished building node
+
