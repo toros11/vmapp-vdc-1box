@@ -7,11 +7,7 @@
         false
         $skip_group_if_unnecessary
         for node in ${NODES[@]} ; do
-            if which bootstraper 2> /dev/null ; then
-                boostraper env build --node "${node}" &> "${ORGCODEDIR}/nodes/${node}/build.log" &
-            else
-                "${ORGCODEDIR}/nodes/${node}/build.sh" &> "${ORGCODEDIR}/nodes/${node}/build.log" &
-            fi
+            "${ORGCODEDIR}/nodes/${node}/build.sh" # &> "${ORGCODEDIR}/nodes/${node}/build.log" &
         done
         node_build_pid[$!]="${node}"
     done

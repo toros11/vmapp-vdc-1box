@@ -26,9 +26,9 @@ cfg_tbl=(
         file="${cfg_tbl[((i+2))]}"
 
         $starting_step "Replace value in ${file}"
-        vm_cmd_run "grep ${repl} ${file}"
+        vm_run_cmd "grep ${repl} ${file}"
         $skip_step_if_already_done ; set -ex
-        vm_cmd_run "sed -i -e \"s,${orig},${repl},g\" ${file}"
+        vm_run_cmd "sed -i -e \"s,${orig},${repl},g\" ${file}"
     done
 ) ; prev_cmd_failed
 
@@ -50,7 +50,7 @@ cfg_tbl=(
     for dirpath in /opt/axsh/wakame-vdc/dcmgr /opt/axsh/wakame-vdc/frontend/dcmgr_gui; do
         vm_run_cmd "( cd ${dirpath} ; /opt/axsh/wakame-vdc/ruby/bin/bundle exec rake db:init --trace )"
     done
-) ; perv_cmd_failed
+) ; prev_cmd_failed
 
 # TODO: check wether we need this or not
 # export HOME=/root

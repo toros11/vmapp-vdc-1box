@@ -74,7 +74,7 @@ execute ()
                 200) # this return code is for intended exists, stop the loop and exit succedfully
                     exit 0 ;;
                 255)
-                    [[ $(get_build_stage) -gt $boot ]] && shutdown || destroy
+                    [[ $(get_build_state) -gt $boot ]] && shutdown || destroy
                     exit 255 ;;
             esac
         done
@@ -105,6 +105,7 @@ vm_run_cmd ()
 {
     return 0
 }
+
 install_package ()
 {
     local package="${1}"

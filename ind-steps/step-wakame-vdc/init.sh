@@ -19,4 +19,4 @@ vm_run_cmd "yum update  -y     --disablerepo=* --enablerepo=wakame-vdc-rhel6 --e
 
 
 # wakame-vdc-ruby depends on libyaml.
-PKG_URL="http://vault.centos.org/6.6/os/x86_64/Packages/libyaml-0.1.3-1.4.el6.x86_64.rpm" install_package "libyaml"
+PKG_SRC="http://vault.centos.org/6.6/os/x86_64/Packages/libyaml-0.1.3-1.4.el6.x86_64.rpm" install_package "libyaml"
