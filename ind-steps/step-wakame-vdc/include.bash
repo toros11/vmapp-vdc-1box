@@ -31,9 +31,9 @@ hypervisor_setup ()
 
 install_vdc_package ()
 {
-    local pkg_name="${1}*"
+    local pkg_name="${1}"
     if declare -f setup_"${pkg_name}" > /dev_null ; then
-	setup_"${pkg_name}"
+        setup_"${pkg_name}"
     fi
     pkg_name="wakame-vdc-${pkg_name}-vmapp-config"
     (
@@ -43,6 +43,8 @@ install_vdc_package ()
         vm_run_cmd "yum install --enablerepo=wakame-vdc-rhel6 --enablerepo=wakame-3rd-rhel6 -y ${pkg_name}"
     ) ; prev_cmd_failed
 }
+
+# package dependencies
 
 setup_dcmgr () 
 {

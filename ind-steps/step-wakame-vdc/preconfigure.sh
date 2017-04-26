@@ -15,17 +15,17 @@ chkconfig_service "tgtd" "on"
     $skip_step_if_already_done; set -ex
     case "${edge_networking}" in
         "openflow")
-            /opt/axsh/wakame-vdc/rpmbuild/helpers/set-openvswitch-conf.sh
+            vm_run_cmd "/opt/axsh/wakame-vdc/rpmbuild/helpers/set-openvswitch-conf.sh"
             ;;
         "netfilter") 
-            chkconfig --list openvswitch && { chkconfig openvswitch off; } || :
+            vm_run_cmd "chkconfig --list openvswitch" && { vm_run_cmd "chkconfig openvswitch off" ; } || :
             ;;
 
     esac
 ) ; prev_cmd_failed
 
 # bkst-apache
-chkconfig "httpd" "on"
+chkconfig_service "httpd" "on"
 
 (
     $starting_step "Set ownership of wakames image storage to apache"

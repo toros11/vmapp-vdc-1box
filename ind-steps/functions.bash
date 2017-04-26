@@ -103,7 +103,9 @@ shutdown ()
 
 vm_run_cmd ()
 {
-    return 0
+    for cmd in "${@}" ; do
+        echo "executing: ${cmd}" >> ${ORGCODEDIR}/execute_log
+    done
 }
 
 install_package ()
