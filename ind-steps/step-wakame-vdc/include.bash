@@ -9,7 +9,7 @@ hypervisor_setup ()
         false
         $skip_step_if_already_done ; set -ex
         vm_run_cmd "[ -f /etc/wakame-vdc/convert_specs/load_balancer.yml ]" &&
-            vm_run_cmd "sed -i \"s,hypervisor: .*,hypervisor: 'dummy',\" /etc/wakame-vdc/convert_specs/load_balancer.yml"
+            vm_run_cmd "sed -i \"s,hypervisor: .*,hypervisor: '${hypervisor}',\" /etc/wakame-vdc/convert_specs/load_balancer.yml"
     ) ; prev_cmd_failed
 
     (
@@ -32,13 +32,11 @@ hypervisor_setup ()
 install_vdc_package ()
 {
     local pkg_name="${1}"
-    if declare -f setup_"${pkg_name}" > /dev_null ; then
-        setup_"${pkg_name}"
-    fi
+    ! declare -f setup_"${pkg_name}" > /dev_null || setup_"${pkg_name}"
     pkg_name="wakame-vdc-${pkg_name}-vmapp-config"
     (
         $starting_step "Install vdc-package ${pkg_name}"
-        vm_run_cmd "yum search --enablerepo=wakame-vdc-rhel6 --enablerepo=wakame-3rd-rhel6 ${pkg_name} | egrep -q ${pkg_name}"
+        vm_run_cmd "rpm -q --quiet ${pkg_name}"
         $skip_step_if_already_done ; set -ex
         vm_run_cmd "yum install --enablerepo=wakame-vdc-rhel6 --enablerepo=wakame-3rd-rhel6 -y ${pkg_name}"
     ) ; prev_cmd_failed
@@ -48,10 +46,10 @@ install_vdc_package ()
 
 setup_dcmgr () 
 {
-    PKG_SRC="http://www.rabbitmq.com/releases/rabbitmq-server/v2.7.1/rabbitmq-server-2.7.1-1.noarch.rpm" install_package "rabbitmq-server"
+    PKG_SRC="http://www.rabbitmq.com/releases/rabbitmq-server/v2.7.1/rabbitmq-server-2.7.1-1.noarch.rpm" vm_install_package "rabbitmq-server"
 }
 
 setup_natbox () 
 {
-    PKG_SRC="http://dlc.openvnet.axsh.jp/packages/rhel/openvswitch/6.4/openvswitch-2.4.0-1.x86_64.rpm" install_package "openvswtich-2.4.0"
+    PKG_SRC="http://dlc.openvnet.axsh.jp/packages/rhel/openvswitch/6.4/openvswitch-2.4.0-1.x86_64.rpm" vm_install_package "openvswitch-2.4.0"
 }

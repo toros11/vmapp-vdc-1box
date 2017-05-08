@@ -10,16 +10,19 @@ xmax_input_time = 600
 [Date]
 date.timezone = $(date '+%Z')
 EOF"
+) ; prev_cmd_failed
 
-vm_run_cmd "cat <<EOF >> $1/etc/my.cnf
+(
+    $starting_step "Update my.cnf"
+    vm_run_cmd "grep -q 'bind-address = 127.0.0.1' /etc/my.cnf"
+    $skip_step_if_already_done ; set -ex
+    vm_run_cmd "cat <<EOF >> /etc/my.cnf
 [mysqld]
 bind-address = 127.0.0.1
 default-character-set=utf8
 skip-character-set-client-handshake
 EOF"
 
+) ; prev_cmd_failed
 
-# chroot $1 $SHELL -ex -ex <<EOS
-#   chkconfig --list zabbix-agent
-#  #chkconfig zabbix-agent on
-# EOS
+chkconfig_service "zabbix-agent" "on"

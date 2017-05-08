@@ -1,2 +1,3 @@
+#!/bin/bash
 
-install_package "td-agent-${fluentd_version}"
+vm_install_package "td-agent-${fluentd_version}"
