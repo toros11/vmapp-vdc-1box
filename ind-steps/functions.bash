@@ -120,18 +120,12 @@ chkconfig_service ()
         $starting_step "Set ${service} runtime to ${status}"
         false
         $skip_step_if_already_done ; set -ex
-        vm_run_cmd $(cat <<EOF
-"chkconfig --list ${service}"
-"chkconfig ${service} ${status}"
-"chkconfig --list ${service}"
+        vm_run_cmd "$(cat <<EOF
+chkconfig --list ${service}
+chkconfig ${service} ${status}
+chkconfig --list ${service}
 EOF
-            )
+            )"
     ) ; prev_cmd_failed
 
-}
-
-initctl_service ()
-{
-    local service="${1}"
-    local cmd="${2}"
 }
