@@ -1,17 +1,20 @@
 #!/bin/bash
 
-  # workaround 2014/10/17
-  #
-  # in order escape below error
-  # > Error: Cannot retrieve metalink for repository: epel. Please verify its path and try again
-  #
+(
+    $starting_step "Download wakame-vdc-stable repository"
+    vm_run_cmd "[[ -f /etc/yum.repos.d/wakame-vdc-stable.repo ]]"
+    $skip_step_if_already_done ; set -ex
+    vm_run_cmd "curl -o /etc/yum.repos.d/wakame-vdc-stable.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/master/rpmbuild/yum_repositories/wakame-vdc-stable.repo"
+) ; prev_cmd_failed
 
-  # may not be needed anymore
-vm_run_cmd "sed -i \
-   -e 's,^#baseurl,baseurl,' \
-   -e 's,^mirrorlist=,#mirrorlist=,' \
-   -e 's,http://download.fedoraproject.org/pub/epel/,http://ftp.jaist.ac.jp/pub/Linux/Fedora/epel/,' \
-   /etc/yum.repos.d/epel.repo /etc/yum.repos.d/epel-testing.repo"
+(
+    $starting_step "Download openvz repository"
+    vm_run_cmd "[[ -f /etc/yum.repos.d/openvz.repo ]]"
+    $skip_step_if_already_done ; set -ex
+    vm_run_cmd "curl -o /etc/yum.repos.d/openvz.repo -R https://raw.githubusercontent.com/axsh/wakame-vdc/develop/rpmbuild/yum_repositoriesopenvz.repo"
+) ; prev_cmd_failed
+
+vm_run_cmd "rpm --import http://download.openvz.org/RPM-GPG-Key-OpenVZ"
 
   # make into step
 vm_run_cmd "yum clean metadata --disablerepo=* --enablerepo=wakame-vdc-rhel6 --enablerepo=wakame-3rd-rhel6"

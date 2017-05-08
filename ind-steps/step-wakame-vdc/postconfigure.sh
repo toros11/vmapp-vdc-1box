@@ -19,38 +19,39 @@ cfg_tbl=(
     "bkst-local"     "bkst-demo3"           "/etc/wakame-vdc/dcmgr.conf" # overwrite default 
 )
 
-(
-    for (( i=0 ; i < ${#cfg_tbl[@]}; i+=3 )) ; do
-        orig="${cfg_tbl[i]}"
-        repl="${cfg_tbl[((i+1))]}"
-        file="${cfg_tbl[((i+2))]}"
-
-        $starting_step "Replace value in ${file}"
-        vm_run_cmd "grep ${repl} ${file}"
-        $skip_step_if_already_done ; set -ex
+for (( i=0 ; i < ${#cfg_tbl[@]}; i+=3 )) ; do
+    orig="${cfg_tbl[i]}"
+    repl="${cfg_tbl[(( i + 1 ))]}"
+    file="${cfg_tbl[(( i + 2 ))]}"
+    (
+        $starting_step "Replace pattern ${orig} with ${repl} in ${file}"
+        false
+        $skip_step_if_already_done ; set -xe
         vm_run_cmd "sed -i -e \"s,${orig},${repl},g\" ${file}"
-    done
-) ; prev_cmd_failed
+    ) ; prev_cmd_failed
+done
 
-(
-    $starting_step "Create databases"
-    false
-    $skip_step_if_already_done ; set -ex
-    # zabbix should possibly be moved to the zabbix post configure script
-    for dbname in wakame_dcmgr wakame_dcmgr_gui zabbix dolphin; do
-      vm_run_cmd "yes | mysqladmin -uroot drop ${dbname}"
-      vm_run_cmd "mysqladmin -uroot create ${dbname} --default-character-set=utf8"
-    done
-) ; prev_cmd_failed
+vm_run_cmd "service mysqld start"
 
-(
-    $starting_step "Initialize databases"
-    false
-    $skip_step_if_already_done ; set -ex
-    for dirpath in /opt/axsh/wakame-vdc/dcmgr /opt/axsh/wakame-vdc/frontend/dcmgr_gui; do
+for dbname in wakame_dcmgr wakame_dcmgr_gui zabbix dolphin; do
+    (
+        $starting_step "Create databases"
+        false
+        $skip_step_if_already_done ; set -x
+        # zabbix should possibly be moved to the zabbix post configure script
+        vm_run_cmd "yes | mysqladmin -uroot drop ${dbname}"
+        vm_run_cmd "mysqladmin -uroot create ${dbname} --default-character-set=utf8"
+    ) ; prev_cmd_failed
+done
+
+for dirpath in /opt/axsh/wakame-vdc/dcmgr /opt/axsh/wakame-vdc/frontend/dcmgr_gui; do
+    (
+        $starting_step "Initialize databases"
+        false
+        $skip_step_if_already_done ; set -ex
         vm_run_cmd "( cd ${dirpath} ; /opt/axsh/wakame-vdc/ruby/bin/bundle exec rake db:init --trace )"
-    done
-) ; prev_cmd_failed
+    ) ; prev_cmd_failed
+done
 
 # TODO: check wether we need this or not
 # export HOME=/root

@@ -1,7 +1,11 @@
 
 chkconfig_service "zabbix-server" "on"
 
-vm_run_cmd "cat <<EOF > $1/etc/php.d/zabbix.ini
+(
+    $starting_step "Update zabbix.ini"
+    false
+    $skip_step_if_already_done ; set -ex
+    vm_run_cmd "cat <<EOF > /etc/php.d/zabbix.ini
 [PHP]
 post_max_size = 32M
 upload_max_filesize = 16M
