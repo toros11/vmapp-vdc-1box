@@ -1,58 +1,49 @@
 #!/bin/bash
-#
-# requires: bashsteps
-#
 
-
-VM_USER=
-SSH_KEY=
-IP_ADDR=
-PKG_MGR=
-
-internal_ssh ()
+vm_ssh ()
 {
-    local user="${1:-root}"
-    local ip_addr="${IP_ADDR:-2}"
-    local ssh_key="${SSH_KEY}"
+    : "${SSH_KEY:?"should be defined"}"
+    : "${IP_ADDR:?"should be defined"}"
 
-    [[ -f "${ssh_key}" ]] || return 1
-    
-    $(type -P ssh) -i "${ssh_key}" -o 'StrictHostKeyChecking=no' -o 'LogLevel=quiet' -o 'UserKnownHostsFile /dev/null' "${user}@${ip_addr}" "${@}"
+    local user="${VM_USER:-root}"
+    local ssh_options=(
+        "${ssh_options[@]:-
+            "-o StrictHostKeyChecking=no"
+            "-o LogLevel=quiet"
+            "-o UserKnownHostsFile=/dev/null"}"
+    )
+
+    [[ -f "${SSH_KEY}" ]] || return 1
+
+    $(type -P ssh) -i "${SSH_KEY}" $(for opt in "${ssh_options[@]}" ; do echo "${opt}" ; done) "${user}@${IP_ADDR}" "${@}"
 }
 
-internal_chroot ()
+vm_chroot ()
 {
-    local chroot_path="${1}"
+    : "${TMP_ROOT:?"should be defined"}"
 
-    [[ -d "${chroot_path}" ]] || return 1    
-    $(type -P chroot) "${chroot_path}" "${SHELL}" -c "${@}"
+    [[ -d "${TMP_ROOT}" ]] || return 1
+    sudo $(type -P chroot) "${TMP_ROOT}" "${SHELL}" -c "${@}"
 }
 
-# Helper function for running commands on nodes so we don't have to make seprate
-# scripts for performing the same commands before and after the image is running.
-internal_run_cmd ()
+vm_install_package ()
 {
-    local stage="${1:-0}"
+    local pkg_mgr="${PKG_MGR:-yum}"
+    local src="${PKG_SRC}" # used if we want to install package directly from url
 
-    [[ $(get_env_state) -gt $boot ]] && { internal_ssh root@${IP_ADDR} "${@}" ; return $? ; }
-    internal_chroot "${@}"
-}
-
-
-# 
-internal_install_package ()
-{
     local pkg="${1}"
     (
-        $starting_step "${vm_name}: install package ${pkg}"
-        false
-        run_cmd "rpm -q --quiet ${pkg}"
+        $starting_step "Install package ${pkg}"
+        vm_run_cmd "rpm -q --quiet ${pkg}"
         $skip_step_if_already_done; set -ex
-        # "${pkg_mgr:-yum}" install -y "${pkg}"
+        if [[ -n "${src}" ]] ; then
+            pkg="${src}"
+        fi
+        vm_run_cmd "${pkg_mgr} install -y ${pkg}"
     ) ; prev_cmd_failed
 }
 
-internal_wait_for ()
+vm_wait_for ()
 {
     local service="${step:-service}"
     local condition="${@}"
@@ -60,13 +51,28 @@ internal_wait_for ()
     local sleep_time="${sleep_time:-3}"
     local readonly start_time=$(date +%s)
 
-    if ! declare -f get_env_state
-
-    stage=$(get_env_state $stage)
     while :; do
-        stage=${stage} internal_run_cmd "${condition}" && return 0
+        vm_run_cmd "${condition}" && return 0
         [[ $(( $(date +%s) - start_time )) -gt $timeout ]] && return 0
         echo "Waiting for ${service}..."
         sleep ${sleep_time}
     done
 }
+
+# Wrapper function for running commands on nodes so we don't have to make seprate
+# scripts for performing the same commands before and after the image is running.
+vm_run_cmd ()
+{
+    : "${VM_STATE:?"should be defined"}"
+    local call_cmd
+
+    case ${VM_STATE} in
+        0 ) call_cmd="vm_chroot";;
+        1 ) call_cmd="vm_ssh" ;;
+    esac
+
+    for cmd in "${@}" ; do
+        ${call_cmd} "${cmd}"
+    done
+}
+
