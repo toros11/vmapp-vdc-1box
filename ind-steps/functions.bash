@@ -66,17 +66,18 @@ execute ()
     # clusters  where multiple applications works together and proper setup of applications depends on other
     # applications having a certain state/setup.
     for stage in ${stages[@]} ; do
+        [[ $stage -ge $boot ]] && VM_STATE=1 || VM_STATE=0
         for step in ${steps[@]} ; do
-            echo "${stage},${step}" > ${LINKCODEDIR}/.state
             [[ -d "${ORGCODEDIR}/ind-steps/step-${step}" ]] || continue
             [[ -f "${ORGCODEDIR}/ind-steps/step-${step}/${stage}.sh" ]] && run_steps "${step}" "${stage}"
             case $? in
                 200) # this return code is for intended exists, stop the loop and exit succedfully
                     exit 0 ;;
                 255)
-                    [[ $(get_build_state) -gt $boot ]] && shutdown || destroy
+                    [[ $(get_build_state) -ge $boot ]] && shutdown || destroy
                     exit 255 ;;
             esac
+            echo "${stage},${step}" > ${LINKCODEDIR}/.state
         done
     done
 }
@@ -87,14 +88,24 @@ execute ()
 
 destroy ()
 {
-    # should call some destroy function
+    local step="buildenv"
+    [[ "${ORGCODEDIR}" == "${LINKCODEDIR}" ]] || step="box"
+
+    (
+        . "${ORGCODEDIR}/ind-steps/step-${step}/include.bash"
+        destroy_${step}
+    )
     return 0
 }
 
 shutdown ()
 {
-    # should call some kill function
-    return 0
+    local step="buildenv"
+    [[ "${ORGCODEDIR}" == "${LINKCODEDIR}" ]] || step="box"
+    (
+        . "${ORGCODEDIR}/ind-steps/step-${step}/include.bash"
+        shutdown_${step}
+    )
 }
 
 #
