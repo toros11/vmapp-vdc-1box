@@ -1,0 +1,5 @@
+DEVICE=eth1
+TYPE=Tap
+BRIDGE=br1
+BOOTPROTO=none
+ONBOOT=yes
