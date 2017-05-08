@@ -1,6 +1,6 @@
 #!/bin/bash
 
-[ -z $ORGCODEDIR ] && ORGCODEDIR="$(cd "$(dirname $(greadlink -f "$0"))" && pwd -P)"
+[ -z $ORGCODEDIR ] && ORGCODEDIR="$(cd "$(dirname $(readlink -f "$0"))" && pwd -P)"
 export ORGCODEDIR=${ORGCODEDIR}
 
 . ${ORGCODEDIR}/external_libraries/bashsteps/simple-defaults-for-bashsteps.source
@@ -9,8 +9,4 @@ export ORGCODEDIR=${ORGCODEDIR}
 
 [[ ${LINKCODEDIR} == ${ORGCODEDIR} ]] && { level="Environment" ; } || { level="${LINKCODEDIR##*/}" ; }
 
-if [[ "${level}" == "Environment" ]] ; then
-    destroy_node "${NODES[@]}"
-else
-    destroy_node "${LINKCODEDIR}"
-done
+destroy
