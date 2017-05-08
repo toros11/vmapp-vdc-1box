@@ -101,25 +101,6 @@ shutdown ()
 # environment functions
 #
 
-vm_run_cmd ()
-{
-    for cmd in "${@}" ; do
-        echo "executing: ${cmd}" >> ${ORGCODEDIR}/execute_log
-    done
-}
-
-install_package ()
-{
-    local package="${1}"
-    (
-        $starting_step "Install ${package}"
-        vm_run_cmd "rpm -qi ${package}"
-        $skip_step_if_already_done ; set -ex
-        [[ -n "${PKG_SRC}" ]] && package="${PKG_SRC}"
-        vm_run_cmd "yum install -y ${package}"
-    ) ; prev_cmd_failed
-}
-
 chkconfig_service ()
 {
     local service="${1}"
