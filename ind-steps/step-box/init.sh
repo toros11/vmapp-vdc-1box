@@ -37,18 +37,14 @@ fi
 
 ) ; prev_cmd_failed
 
-# the tap device used to access the 1box
-(
-    $starting_step "Render network config"
-    vm_run_cmd "[[ -f /etc/sysconfig/network-scripts/ifcfg-onebox ]]"
-    $skip_step_if_already_done ; set -ex
-    vm_run_cmd "cat <<EOF > /etc/sysconfig/network-scripts/ifcfg-onebox-${idx}
-DEVICE=onebox-${idx}
-ONBOOT=yes
-TYPE=Ethernet
-BOOTPROTO=static
-IPADDR=${IP_ADDR}
-NETMASK=255.255.255.0
-EOF
-"
-) ; prev_cmd_failed
+# the default ip address is set to 10.0.2.15, we replace it with the newly assined one
+# in all configuration files
+replace_datas=(
+#   original value replace valueu  file
+    "10.0.2.15"    "${IP_ADDR}"   "/home/centos/.musselrc"                   # mussel
+    "10.0.2.15"    "${IP_ADDR}"   "/etc/wakame-vdc/hva.conf"                 # hva
+    "10.0.2.15"    "${IP_ADDR}"   "/etc/sysconfig/network-scripts/ifcfg-br0" # nic
+)
+
+replace_pattern "${replace_datas[@]}"
+

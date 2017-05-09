@@ -10,7 +10,7 @@ case "$(arch)" in
         hva_id="1box64" ;;
 esac
 
-cfg_tbl=(
+replace_datas=(
 #   original value   replace value          file
     "^#NODE_ID="     "NODE_ID=${hva_id}"    "/etc/default/vdc-hva"       # enable hva
     "^#RUN=.*"       "RUN=yes"              "/etc/default/vdc-*"         # prepare vdc services
@@ -18,18 +18,8 @@ cfg_tbl=(
     "wmi-demolb"     "${haproxy}"           "/etc/wakame-vdc/dcmgr.conf" # for load balancer
     "bkst-local"     "bkst-demo3"           "/etc/wakame-vdc/dcmgr.conf" # overwrite default 
 )
+replace_pattern "${replace_datas[@]}"
 
-for (( i=0 ; i < ${#cfg_tbl[@]}; i+=3 )) ; do
-    orig="${cfg_tbl[i]}"
-    repl="${cfg_tbl[(( i + 1 ))]}"
-    file="${cfg_tbl[(( i + 2 ))]}"
-    (
-        $starting_step "Replace pattern ${orig} with ${repl} in ${file}"
-        false
-        $skip_step_if_already_done ; set -xe
-        vm_run_cmd "sed -i -e \"s,${orig},${repl},g\" ${file}"
-    ) ; prev_cmd_failed
-done
 
 vm_run_cmd "service mysqld start"
 

@@ -129,3 +129,22 @@ EOF
     ) ; prev_cmd_failed
 
 }
+
+# recieves matrix [ value1, value2, filename ] and replaces
+# pattern of value1 with value2 in filename
+replace_pattern ()
+{
+    local input=( ${@} )
+
+    for (( i=0 ; i < ${#input[@]}; i+=3 )) ; do
+        orig="${input[i]}"
+        repl="${input[(( i + 1 ))]}"
+        file="${input[(( i + 2 ))]}"
+        (
+            $starting_step "Replace pattern ${orig} with ${repl} in ${file}"
+            false
+            $skip_step_if_already_done ; set -xe
+            vm_run_cmd "sed -i -e \"s,${orig},${repl},g\" ${file}"
+        ) ; prev_cmd_failed
+    done
+}
