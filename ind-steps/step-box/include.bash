@@ -8,6 +8,7 @@ shutdown_box ()
         $skip_step_if_already_done; set -ex
         kill $(cat "${LINKCODEDIR}/${vm_name}.pid") 2> /dev/null
         rm -f "${LINKCODEDIR}/${vm_name}.pid"
+        rm -f ${LINKCODEDIR}/.state
     ) ; prev_cmd_failed
 }
 
