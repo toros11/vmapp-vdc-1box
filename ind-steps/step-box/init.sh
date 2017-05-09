@@ -1,9 +1,5 @@
 #!/bin/bash
 
-# bridge/network is individual for each node
-create_bridge "${BRIDGE_NAME}" "${NETWORK%.*}.2/24"
-enable_masquerade "${NETWORK}/24"
-
 if mount | grep -q "${TMP_ROOT}" ; then
     (
         $starting_step "${vm_name}: Unmount temporary root folder for ${vm_name}"
