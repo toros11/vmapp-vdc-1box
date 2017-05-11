@@ -5,7 +5,7 @@
 export ORGCODEDIR
 
 . ${ORGCODEDIR}/ind-steps/functions.bash
-. ${LINKCODEDIR}/datadir.conf
+. ${LINKCODEDIR}/datadir.conf "${1:-0}" # optional parameter for indexing multiple nodes
 
 cat <<EOF
 
