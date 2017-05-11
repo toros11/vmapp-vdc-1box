@@ -25,6 +25,7 @@ EOF"
 bind-address = 127.0.0.1
 default-character-set=utf8
 skip-character-set-client-handshake
+skip-grant-tables
 EOF"
 
 ) ; prev_cmd_failed
