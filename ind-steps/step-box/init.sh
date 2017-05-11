@@ -25,6 +25,8 @@ fi
     mount-partition --sudo "${vm_image}" 1 "${TMP_ROOT}"
 ) ; prev_cmd_failed
 
+${LINKCODEDIR}/prepare-vmimage.sh "${vdc_hypervisor}" "${arch}"
+
 (
     $starting_step "Synching guestroot for ${vm_name}"
     false
