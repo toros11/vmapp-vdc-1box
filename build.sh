@@ -9,7 +9,7 @@ export ORGCODEDIR
 
 cat <<EOF
 
-=======> building $level:
+=======> building $LEVEL:
 
 EOF
 
@@ -17,6 +17,6 @@ execute $(get_build_state $stage) $(cat ${LINKCODEDIR}/steplist.conf)
 
 cat <<EOF
 
-<======= finished building $level
+<======= finished building $LEVEL
 
 EOF
