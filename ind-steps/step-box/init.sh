@@ -39,12 +39,14 @@ fi
 
 # the default ip address is set to 10.0.2.15, we replace it with the newly assined one
 # in all configuration files
+
 replace_datas=(
+
 #   original value replace valueu  file
     "10.0.2.15"    "${IP_ADDR}"   "/home/centos/.musselrc"                   # mussel
     "10.0.2.15"    "${IP_ADDR}"   "/etc/wakame-vdc/hva.conf"                 # hva
     "10.0.2.15"    "${IP_ADDR}"   "/etc/sysconfig/network-scripts/ifcfg-br0" # nic
 )
 
-replace_pattern "${replace_datas[@]}"
-
+# 127.0.0.1 means we are using user mode networking and we don't need to replace anything
+[[ "${IP_ADDR}" != "127.0.0.1" ]] && replace_pattern "${replace_datas[@]}"

@@ -70,8 +70,10 @@ destroy_buildenv ()
         ) ; prev_cmd_failed
     done
     rm -f ${ORGCODEDIR}/.state
-    remove_bridge "${BRIDGE_NAME}"
-    disable_masquerade "${NETWORK}/24"
+    if [[ -n "${NETWORK}" && -n "${BRIDGE_NAME} " ]] ; then
+        remove_bridge "${BRIDGE_NAME}"
+        disable_masquerade "${NETWORK}/24"
+    fi
 }
 
 shutdown_buildenv ()
@@ -85,6 +87,8 @@ shutdown_buildenv ()
         ) ; prev_cmd_failed
     done
     rm -f ${ORGCODEDIR}/.state
-    remove_bridge "${BRIDGE_NAME}"
-    disable_masquerade "${NETWORK}/24"
+    if [[ -n "${NETWORK}" && -n "${BRIDGE_NAME} " ]] ; then
+        remove_bridge "${BRIDGE_NAME}"
+        disable_masquerade "${NETWORK}/24"
+    fi
 }
