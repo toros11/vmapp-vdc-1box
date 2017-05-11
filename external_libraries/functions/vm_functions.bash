@@ -47,16 +47,19 @@ vm_wait_for ()
 {
     local service="${step:-service}"
     local condition="${@}"
-    local timeout="${timeout:-30}"
+    local timeout="${timeout:-60}"
     local sleep_time="${sleep_time:-3}"
     local readonly start_time=$(date +%s)
 
     while :; do
         vm_run_cmd "${condition}" && return 0
-        [[ $(( $(date +%s) - start_time )) -gt $timeout ]] && return 0
+        [[ $(( $(date +%s) - start_time )) -gt $timeout ]] && { echo "${service} ready" ; return 0 ; }
         echo "Waiting for ${service}..."
         sleep ${sleep_time}
     done
+
+    echo "${service} timed out..."
+    return 255
 }
 
 # Wrapper function for running commands on nodes so we don't have to make seprate
