@@ -26,6 +26,7 @@ fi
 ) ; prev_cmd_failed
 
 ${LINKCODEDIR}/prepare-vmimage.sh "${vdc_hypervisor}" "${arch}"
+${LINKCODEDIR}/gen-vmcmdset.sh "${vdc_hypervisor}" "${arch}"
 
 (
     $starting_step "Synching guestroot for ${vm_name}"
