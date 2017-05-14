@@ -21,16 +21,22 @@ umount_box
          for (( i=0 ; i < ${#nics[@]} ; i++ )); do
              nic=(${nics[i]})
 
-             case "${nic[0]}" in
-                 *"ifname"*)
-                     echo -netdev tap,ifname=${nic[0]#*=},script=,downscript=,id=${vm_name}${idx}
-                     echo -device virtio-net-pci,netdev=${vm_name}${idx},mac=${nic[1]#*=},bus=pci.0,addr=0x$((3 + ${idx}))
-                     ;;
-                 *"port"*)
-                     echo -net nic,vlan=0,macaddr=${nic[1]#*=},model=virtio,addr=$(( 3 + idx ))
-                     echo -net user,vlan=0,hostfwd=tcp::${nic[0]#*=}-:22
-                     ;;
-             esac
+             if [[ -z ${ACCESS_PORT} ]] ; then
+                 echo -netdev tap,ifname=${nic[0]#*=},script=,downscript=,id=${vm_name}${idx}
+                 echo -device virtio-net-pci,netdev=${vm_name}${idx},mac=${nic[1]#*=},bus=pci.0,addr=0x$((3 + ${idx}))
+             else
+                 hostfwd="$(
+                   ret_val="hostfwd=tcp::${ACCESS_PORT}-:22"
+                   for port in ${extra_port_forward[@]} ; do
+                       ret_val="${ret_val},hostfwd=tcp::$(( port + 10000 + idx ))-:${port}"
+                   done
+                   echo ${ret_val}
+                 )"
+
+                 echo -net nic,vlan=0,macaddr=${nic[0]#*=},model=virtio,addr=$(( 3 + idx ))
+                 echo -net user,vlan=0,${hostfwd}
+                 break
+             fi
          done
        ) \
        -daemonize \
