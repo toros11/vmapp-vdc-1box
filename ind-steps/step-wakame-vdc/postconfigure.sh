@@ -12,7 +12,7 @@ esac
 
 replace_datas=(
 #   original value   replace value          file
-    "^#NODE_ID="     "NODE_ID=${hva_id}"    "/etc/default/vdc-hva"       # enable hva
+    "^#NODE_ID=.*"   "NODE_ID=${hva_id}"    "/etc/default/vdc-hva"       # enable hva
     "example.com"    "10.1.0.1"             "/etc/wakame-vdc/dcmgr.conf" # for load balancer
     "wmi-demolb"     "${haproxy}"           "/etc/wakame-vdc/dcmgr.conf" # for load balancer
     "bkst-local"     "bkst-demo3"           "/etc/wakame-vdc/dcmgr.conf" # overwrite default 
