@@ -39,7 +39,6 @@ for dbname in wakame_dcmgr wakame_dcmgr_gui zabbix; do
         vm_run_cmd "mysql <<< \"show databases;\" | grep ${dbname}"
         $skip_step_if_already_done ; set -x
         # zabbix should possibly be moved to the zabbix post configure script
-        # vm_run_cmd "yes | mysqladmin -uroot drop ${dbname}" || :
         vm_run_cmd "mysqladmin -uroot create ${dbname} --default-character-set=utf8"
     ) ; prev_cmd_failed
 done
@@ -52,9 +51,6 @@ for dirpath in /opt/axsh/wakame-vdc/dcmgr /opt/axsh/wakame-vdc/frontend/dcmgr_gu
         vm_run_cmd "( cd ${dirpath} ; /opt/axsh/wakame-vdc/ruby/bin/bundle exec rake db:init --trace )"
     ) ; prev_cmd_failed
 done
-
-# TODO: check wether we need this or not
-# export HOME=/root
 
 vm_run_cmd "find /var/lib/wakame-vdc/demo/vdc-manage.d/ -type f | sort | xargs cat | egrep -v '^#|^$' | /opt/axsh/wakame-vdc/dcmgr/bin/vdc-manage"
 vm_run_cmd "find /var/lib/wakame-vdc/demo/gui-manage.d/ -type f | sort | xargs cat | egrep -v '^#|^$' | /opt/axsh/wakame-vdc/frontend/dcmgr_gui/bin/gui-manage"

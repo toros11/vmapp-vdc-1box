@@ -3,7 +3,7 @@ chkconfig_service "zabbix-server" "on"
 
 (
     $starting_step "Update zabbix.ini"
-    false
+    false # this file is always overwritten
     $skip_step_if_already_done ; set -ex
     vm_run_cmd "cat <<EOF > /etc/php.d/zabbix.ini
 [PHP]

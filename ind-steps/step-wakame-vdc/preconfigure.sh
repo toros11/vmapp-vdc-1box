@@ -4,9 +4,9 @@ hypervisor_setup "${vdc_hypervisor}"
 
 # fluentd plugin
 vm_install_package "td-agent-addon-wakame-vdc" || vm_run_cmd "$(rpm -ql td-agent | grep ruby/bin/fluent-gem) install cassandra -v 0.17.0 --no-ri --no-rdoc"
-
 # sta
 chkconfig_service "tgtd" "on"
+
 # edge networking
 (
     $starting_step "Setup edge networking"
@@ -17,7 +17,7 @@ chkconfig_service "tgtd" "on"
             vm_run_cmd "/opt/axsh/wakame-vdc/rpmbuild/helpers/set-openvswitch-conf.sh"
             ;;
         "netfilter") 
-            vm_run_cmd "chkconfig --list openvswitch > /dev/null" && { vm_run_cmd "chkconfig openvswitch off" ; } || :
+	    chkconfig_service "openvswitch" "off" || :
             ;;
 
     esac
