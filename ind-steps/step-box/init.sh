@@ -5,13 +5,13 @@ if mount | grep -q "${TMP_ROOT}" ; then
         $starting_step "${vm_name}: Unmount temporary root folder for ${vm_name}"
         ! mount | grep -qw "${TMP_ROOT}" || [[ ! -d "${TMP_ROOT}" ]]
         $skip_step_if_already_done;
-        umount-partition --sudo "${TMP_ROOT}"
+        umount_box
     ) ; prev_cmd_failed
 fi
 
 (
     $starting_step "${vm_name}: deploy image"
-    [[ -f "${vm_image}" ]]
+    [[ -f "${VM_IMAGE}" ]]
     $skip_step_if_already_done ; set -e
     tar -Sxzf "${ORGCODEDIR}/${seed_image}" -C "${LINKCODEDIR}"
     rm -f "${LINKCODEDIR}/box-disk1.rpm-qa"
@@ -22,7 +22,7 @@ fi
     mount | grep -q "${TMP_ROOT}"
     $skip_step_if_already_done
     mkdir -p "${TMP_ROOT}"
-    mount-partition --sudo "${vm_image}" 1 "${TMP_ROOT}"
+    mount_img
 ) ; prev_cmd_failed
 
 ${LINKCODEDIR}/prepare-vmimage.sh "${vdc_hypervisor}" "${arch}"
@@ -40,16 +40,15 @@ ${LINKCODEDIR}/gen-vmcmdset.sh "${vdc_hypervisor}" "${arch}"
 
 ) ; prev_cmd_failed
 
-# the default ip address is set to 10.0.2.15, we replace it with the newly assined one
-# in all configuration files
-
-replace_datas=(
-
-#   original value replace valueu  file
-    "10.0.2.15"    "${IP_ADDR}"   "/home/centos/.musselrc"                   # mussel
-    "10.0.2.15"    "${IP_ADDR}"   "/etc/wakame-vdc/hva.conf"                 # hva
-    "10.0.2.15"    "${IP_ADDR}"   "/etc/sysconfig/network-scripts/ifcfg-br0" # nic
-)
-
 # 127.0.0.1 means we are using user mode networking and we don't need to replace anything
-[[ "${IP_ADDR}" != "127.0.0.1" ]] && replace_pattern "${replace_datas[@]}"
+[[ "${IP_ADDR}" != "127.0.0.1" ]] && {
+    # the default ip address is set to 10.0.2.15, we need toreplace it with the one assigned
+    # if we setup a tap device.
+    replace_datas=(
+    #   original value  replace valueu  file
+	"10.0.2.15"     "${IP_ADDR}"    "/home/centos/.musselrc"                   # mussel
+	"10.0.2.15"     "${IP_ADDR}"    "/etc/wakame-vdc/hva.conf"                 # hva
+	"10.0.2.15"     "${IP_ADDR}"    "/etc/sysconfig/network-scripts/ifcfg-br0" # nic
+    )
+    replace_pattern "${replace_datas[@]}"
+}

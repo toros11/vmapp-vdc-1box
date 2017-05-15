@@ -7,42 +7,9 @@ umount_box
     kill -0 $(cat "${LINKCODEDIR}/${vm_name}.pid" 2> /dev/null) 2> /dev/null
     $skip_step_if_already_done;
     set -x
-    $(cat <<EOS
-     qemu-system-x86_64 \
-       -machine accel=kvm \
-       -cpu ${cpu_type} \
-       -m ${mem_size} \
-       -smp ${cpu_num} \
-       -vnc ${vnc_addr}:${vnc_port} \
-       -serial ${serial} \
-       -serial pty \
-       -drive file=${vm_image},media=disk,if=virtio,format=${format}
-       $(
-         for (( i=0 ; i < ${#nics[@]} ; i++ )); do
-             nic=(${nics[i]})
 
-             if [[ -z ${ACCESS_PORT} ]] ; then
-                 echo -netdev tap,ifname=${nic[0]#*=},script=,downscript=,id=${vm_name}${idx}
-                 echo -device virtio-net-pci,netdev=${vm_name}${idx},mac=${nic[1]#*=},bus=pci.0,addr=0x$((3 + ${idx}))
-             else
-                 hostfwd="$(
-                   ret_val="hostfwd=tcp::${ACCESS_PORT}-:22"
-                   for port in ${extra_port_forward[@]} ; do
-                       ret_val="${ret_val},hostfwd=tcp::$(( port + 10000 + idx ))-:${port}"
-                   done
-                   echo ${ret_val}
-                 )"
-
-                 echo -net nic,vlan=0,macaddr=${nic[0]#*=},model=virtio,addr=$(( 3 + idx ))
-                 echo -net user,vlan=0,${hostfwd}
-                 break
-             fi
-         done
-       ) \
-       -daemonize \
-       -pidfile ${LINKCODEDIR}/${vm_name}.pid
-EOS
-    )
+    build_qemu_cmd
+    $(cat ${LINKCODEDIR}/.kvm.cmd)
     set +x
 ) ; prev_cmd_failed
 
